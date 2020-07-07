@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/FreeNikita/node.js-restAPI-vue.js#readme",
   "dependencies": {
+    "apollo-server-express": "^2.15.1",
     "express": "^4.17.1",
     "express-graphql": "^0.11.0",
     "graphql": "^15.3.0",
