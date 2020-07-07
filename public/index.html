@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/vuetify/1.5.24/vuetify.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <style>
+    .done {
+      text-decoration: line-through;
+    }
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+  <title>Task List</title>
+</head>
+<body>
+<div id="app" v-cloak>
+  <v-app :dark="isDark">
+    <v-toolbar color="blue darken-4" dark>
+      <v-toolbar-side-icon></v-toolbar-side-icon>
+      <v-toolbar-title class="headline">Task List</v-toolbar-title>
+
+      <v-spacer></v-spacer>
+
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon @click="show = !show" v-on="on">
+            <v-icon v-model="isDark" @click="isDark = !isDark">{{ show ? 'check_circle' : 'check_circle_outline' }}
+            </v-icon>
+          </v-btn>
+        </template>
+        <span>{{isDark ? 'Light' : 'Dark'}}</span>
+      </v-tooltip>
+    </v-toolbar>
+    <v-container>
+      <v-layout row justify-center>
+        <v-flex xs12>
+          <v-card>
+            <v-list two-line subheader>
+              <v-container>
+                <v-subheader class="headline">
+                  {{new Date() | date}}
+                </v-subheader>
+                <v-spacer></v-spacer>
+
+                <p class="text-xs-right"><b>{{todos.length}}</b> Task</p>
+
+                <v-flex xs12>
+                  <v-text-field
+                    clearable
+                    v-model="todoTitle"
+                    id="newTodo"
+                    name="newTodo"
+                    label="Enter new task"
+                    @keyup.enter="addTodo"
+                    :dark="isDark"
+                  >
+                  </v-text-field>
+                </v-flex>
+              </v-container>
+              <v-subheader class="subheading" v-if="todos.length === 0">
+                You have 0 tasks, add new
+              </v-subheader>
+              <v-subheader class="subheading" v-else>
+                Your task
+              </v-subheader>
+              <div v-for="(todo, i) in todos" :key="i">
+                <v-list-tile avatar>
+                  <v-list-tile-action>
+                    <v-checkbox
+                      v-if="!todo.done"
+                      v-model="todo.done"
+                      @change='complateTodo(todo._id)'
+                      :dark="isDark"
+                    ></v-checkbox>
+                  </v-list-tile-action>
+                  <v-list-tile-content>
+                    <v-list-tile-title :class="{done: todo.done}">
+                      {{todo.title | capitalize}}
+                    </v-list-tile-title>
+                    <v-list-tile-sub-title>
+                      Create at: {{todo.createdDate | date(true)}}
+                      (update at: {{todo.updateDate | date(true)}})
+                    </v-list-tile-sub-title>
+                  </v-list-tile-content>
+                  <v-btn icon ripple color="red" @click="removeTodo(todo._id)">
+                    <v-icon class="white--text">close</v-icon>
+                  </v-btn>
+                </v-list-tile>
+              </div>
+            </v-list>
+          </v-card>
+        </v-flex>
+      </v-layout>
+    </v-container>
+  </v-app>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vuetify@1.5.24/dist/vuetify.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
