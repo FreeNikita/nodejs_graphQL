@@ -9,51 +9,110 @@ new Vue({
     }
   },
   created() {
-    fetch('/api/todo', {
-      method: "GET",
-      headers: {'Content-Type': 'application/json'}
+    const query = `
+      query {
+        getTodos {
+          _id
+          title
+          done
+          createdDate
+          updateDate
+        }
+      }
+    `
+
+    fetch('/graphql', {
+      method: 'POST',
+      headers: {
+        'Content-Type': "application/json",
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({query})
     })
     .then(res => res.json())
-    .then((todos) => {
-      this.todos = todos
+    .then(({data : {getTodos}}) => {
+      this.todos = getTodos
     })
   },
   methods: {
     addTodo() {
       const title = this.todoTitle.trim()
+      console.log(title)
       if (!title) return null
 
-      fetch('/api/todo', {
+    
+      const query = `
+        mutation {
+          addTodo(todo: {title: "${title}"}){
+            title
+            _id
+            done
+            updateDate
+            createdDate
+          }
+        }
+      `
+
+      fetch('/graphql', {
         method: "POST",
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({title})
+        headers: {
+          'Content-Type': "application/json",
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({query})
       })
       .then(res => res.json())
-      .then((todo) => {
-        this.todos.push(todo)
+      .then(({data: {addTodo}}) => {
+        this.todos.push(addTodo)
         this.todoTitle = ''
       })
     },
     removeTodo(id) {
-      fetch(`/api/todo/${id}`, {
-        method: "DELETE",
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id})
+      const query = `
+        mutation {
+          removeTodo(id: "${id}"){
+            id
+          }    
+        }   
+      `
+
+      fetch('/graphql', {
+        method: "POST",
+        headers: {
+          'Content-Type': "application/json",
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({query})
       })
       .then(res => res.json())
-      .then((id) => {
+      .then(({data: {removeTodo: {id}}}) => {
         this.todos = this.todos.filter(t => t._id !== id)
       })
-      
     },
     complateTodo(id) {
-      fetch(`/api/todo/${id}`, {
-        method: "PUT",
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id})
+      const query = `
+        mutation {
+          completeTodo(id: "${id}"){
+            _id
+            done
+            title
+            updateDate
+            createdDate
+          }
+        }
+      `
+
+      fetch('/graphql', {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({query})
       })
       .then(res => res.json())
-      .then((todo) => {
+      .then(({data: {completeTodo: todo}}) => {
+        console.log(todo)
         this.todos = this.todos.map(t => t._id === todo._id ? todo : t)
       })
     }
@@ -76,7 +135,7 @@ new Vue({
       }
 
       return new Intl.DateTimeFormat('ru-RU', option)
-        .format(new Date(value))
+        .format(new Date(+value))
     }
   }
 })
